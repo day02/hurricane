@@ -1,0 +1,17 @@
+[package]
+name = "hurricane"
+version = "0.1.0"
+authors = ["uday raina <udayrainaz@gmail.com>"]
+edition = "2018"
+description = "2D Game and a battle for Air Dominance"
+repository = "https://github.com/day02/hurricane.git"
+readme = "README.md"
+keywords = ["game", "hurricane"]
+license = "MIT"
+
+[dependencies]
+
+[dependencies.sdl2]
+version = "0.32.2"
+default-features = false
+features = ["image", "ttf"]
