@@ -1,6 +1,12 @@
 image:
   file: .gitpod.Dockerfile
 
+ports:
+- port: 6080
+  onOpen: notify
+- port: 5900
+  onOpen: ignore
+
 tasks:
   - init: cargo build
     command: cargo watch -x run
