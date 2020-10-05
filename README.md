@@ -1,3 +1,5 @@
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/day02/hurricane)
+
 # hurricane
 
 2D Game and a battle for Air Dominance in the [Rust Programming Language](https://www.rust-lang.org).
