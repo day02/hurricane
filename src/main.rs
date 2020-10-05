@@ -14,7 +14,9 @@ pub fn run() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
 
-    let window = video_subsystem.window("hurricane", 1280, 720)
+    //let dimension = (1280, 720);
+    let dimension = (640, 480);
+    let window = video_subsystem.window("hurricane", dimension.0, dimension.1)
         .position_centered()
         .build()
         .map_err(|e| e.to_string())?;
@@ -24,6 +26,8 @@ pub fn run() -> Result<(), String> {
         .accelerated()
         .build()
         .map_err(|e| e.to_string())?;
+
+    let mut timer = sdl_context.timer()?;
 
     let mut event_pump = sdl_context.event_pump()?;
 
@@ -44,32 +48,61 @@ pub fn run() -> Result<(), String> {
     let png = Path::new("assets/images/plane/2.png");
     let plane_2 = texture_creator.load_texture(&png)?;
 
+    let screen_width : u32 = canvas.viewport().width();
+    let screen_height : u32 = canvas.viewport().height();
     let plane_dimension : u32 = 128;
-    let dest_plane_1 = Rect::new(
-        ((canvas.viewport().width() - plane_dimension) / 2) as i32,
-        (canvas.viewport().height() - plane_dimension) as i32,
+
+    let mut dest_plane_1 = Rect::new(
+        ((screen_width - plane_dimension) / 2) as i32,
+        (screen_height - plane_dimension) as i32,
         plane_dimension, plane_dimension);
-    let dest_plane_2 = Rect::new(
-        ((canvas.viewport().width() - plane_dimension) / 2) as i32,
+    let mut dest_plane_2 = Rect::new(
+        ((screen_width - plane_dimension) / 2) as i32,
         0, plane_dimension, plane_dimension);
 
-    canvas.copy(&sky, None, None)?;
+    let keystroke_delta = 10;
+
+    let sleep_time = 5;
 
     'mainloop: loop {
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit{..} |
-                Event::KeyDown {keycode: Option::Some(Keycode::Escape), ..} =>
-                    break 'mainloop,
+                Event::KeyDown {keycode: Option::Some(Keycode::Escape), ..} => {
+                    break 'mainloop;
+                }
+                Event::KeyDown { keycode: Option::Some(Keycode::Up), .. } => {
+                    if dest_plane_1.y > 0 {
+                       dest_plane_1.y -= keystroke_delta;
+                    }
+                }
+                Event::KeyDown { keycode: Option::Some(Keycode::Down), .. } => {
+                    if dest_plane_1.y < (screen_height - plane_dimension) as i32 {
+                       dest_plane_1.y += keystroke_delta;
+                    }
+                }
+                Event::KeyDown { keycode: Option::Some(Keycode::Left), .. } => {
+                    if dest_plane_1.x > 0 {
+                       dest_plane_1.x -= keystroke_delta;
+                    }
+                }
+                Event::KeyDown { keycode: Option::Some(Keycode::Right), .. } => {
+                    if dest_plane_1.x < (screen_width - plane_dimension) as i32 {
+                       dest_plane_1.x += keystroke_delta;
+                    }
+                }
                 _ => {}
             }
         }
 
+        dest_plane_2.y = ((timer.ticks() / sleep_time) % screen_height) as i32;
+
         // copy the frame to the canvas
+        canvas.copy(&sky, None, None)?;
         canvas.copy_ex(&plane_1, None, Some(dest_plane_1), 0.0, None, false, false)?;
         canvas.copy_ex(&plane_2, None, Some(dest_plane_2), 0.0, None, false, true)?;
         canvas.present();
-        std::thread::sleep(Duration::from_millis(100));
+        std::thread::sleep(Duration::from_millis(sleep_time as u64));
     }
 
     canvas.clear();
