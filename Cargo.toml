@@ -12,6 +12,6 @@ license = "MIT"
 [dependencies]
 
 [dependencies.sdl2]
-version = "0.32.2"
+version = "0.34"
 default-features = false
 features = ["image", "ttf"]
