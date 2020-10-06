@@ -35,6 +35,7 @@ pub fn run() -> Result<(), String> {
     // sky : http://clipart-library.com/clipart/pTodkpnGc.htm
     // plane 1 : https://www.pngwave.com/png-clip-art-bzlan
     // plane 2 : https://www.pngwave.com/png-clip-art-wfjsq
+    // bullet : https://opengameart.org/content/lasers-and-beams
 
     let texture_creator = canvas.texture_creator();
     let _ = sdl2::image::init(InitFlag::PNG)?;
@@ -48,9 +49,13 @@ pub fn run() -> Result<(), String> {
     let png = Path::new("assets/images/plane/2.png");
     let plane_2 = texture_creator.load_texture(&png)?;
 
+    let png = Path::new("assets/images/bullet.png");
+    let bullet = texture_creator.load_texture(&png)?;
+
     let screen_width : u32 = canvas.viewport().width();
     let screen_height : u32 = canvas.viewport().height();
     let plane_dimension : u32 = 128;
+    let bullet_dimension : u32 = plane_dimension / 4;
 
     let mut dest_plane_1 = Rect::new(
         ((screen_width - plane_dimension) / 2) as i32,
@@ -59,6 +64,10 @@ pub fn run() -> Result<(), String> {
     let mut dest_plane_2 = Rect::new(
         ((screen_width - plane_dimension) / 2) as i32,
         0, plane_dimension, plane_dimension);
+    let mut dest_bullet = Rect::new(
+            ((screen_width - plane_dimension) / 2) as i32 - 4,
+            (screen_height - plane_dimension) as i32 - 4,
+            bullet_dimension, bullet_dimension);
 
     let keystroke_delta = 10;
 
@@ -95,11 +104,15 @@ pub fn run() -> Result<(), String> {
             }
         }
 
+        dest_bullet.x = dest_plane_1.x + (plane_dimension * 3 / 8) as i32;
+        dest_bullet.y = dest_plane_1.y - (plane_dimension / 4) as i32;
+
         dest_plane_2.y = ((timer.ticks() / sleep_time) % screen_height) as i32;
 
         // copy the frame to the canvas
         canvas.copy(&sky, None, None)?;
         canvas.copy_ex(&plane_1, None, Some(dest_plane_1), 0.0, None, false, false)?;
+        canvas.copy_ex(&bullet, None, Some(dest_bullet), 0.0, None, false, false)?;
         canvas.copy_ex(&plane_2, None, Some(dest_plane_2), 0.0, None, false, true)?;
         canvas.present();
         std::thread::sleep(Duration::from_millis(sleep_time as u64));
